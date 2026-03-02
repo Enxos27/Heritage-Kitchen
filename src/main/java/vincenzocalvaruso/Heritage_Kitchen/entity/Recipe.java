@@ -44,15 +44,18 @@ public class Recipe {
     @JoinColumn(name = "user_id", nullable = false)
     private User user; // L'autore di questa specifica versione
 
+    @Setter
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Ingredient> ingredienti;
 
+    @Setter
     @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Step> steps;
     //    Uso cascade = CascadeType.ALL così quando salverò una Recipe,
     //    Spring salverà automaticamente anche tutti gli ingredienti e i passaggi
     //    inseriti nella lista.
 
+    @Setter
     @ManyToMany
     @JoinTable(
             name = "recipe_tags",

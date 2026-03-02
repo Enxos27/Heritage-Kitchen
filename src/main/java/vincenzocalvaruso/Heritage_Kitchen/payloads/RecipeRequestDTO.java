@@ -20,6 +20,7 @@ public record RecipeRequestDTO(
         UUID parentRecipeId, // Il punto chiave per il versioning --> se null è la root, se ha un valore è un "fork"
 
         List<IngredientDTO> ingredienti,
-        List<StepDTO> steps
+        List<StepDTO> steps,
+        List<String> tags
 ) {
 }

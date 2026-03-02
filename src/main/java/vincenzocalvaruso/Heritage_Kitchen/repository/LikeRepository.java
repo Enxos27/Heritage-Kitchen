@@ -12,5 +12,7 @@ import java.util.UUID;
 public interface LikeRepository extends JpaRepository<Like, UUID> {
     long countByRecipe(Recipe recipe); // Quanti like ha una ricetta
 
-    boolean existsByUserAndRecipe(User user, Recipe recipe); // L'utente ha già messo like?
+    boolean existsByUserAndRecipe(User user, Recipe recipe);  // L'utente ha già messo like?
+
+    void deleteByUserAndRecipe(User user, Recipe recipe);
 }

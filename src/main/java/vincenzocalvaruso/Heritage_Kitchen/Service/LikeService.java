@@ -1,0 +1,32 @@
+package vincenzocalvaruso.Heritage_Kitchen.Service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import vincenzocalvaruso.Heritage_Kitchen.entity.Like;
+import vincenzocalvaruso.Heritage_Kitchen.entity.Recipe;
+import vincenzocalvaruso.Heritage_Kitchen.entity.User;
+import vincenzocalvaruso.Heritage_Kitchen.repository.LikeRepository;
+
+@Service
+public class LikeService {
+    @Autowired
+    private LikeRepository likeRepository;
+
+    public void toggleLike(User user, Recipe recipe) {
+        // Verifico se il like esiste già (usando il metodo nella Repository)
+        if (likeRepository.existsByUserAndRecipe(user, recipe)) {
+            // Se esiste, lo tolgo (Unlike)
+            likeRepository.deleteByUserAndRecipe(user, recipe);
+        } else {
+            // Se non esiste, lo creo
+            Like like = new Like();
+            like.setUser(user);
+            like.setRecipe(recipe);
+            likeRepository.save(like);
+        }
+    }
+
+    public long getRecipeLikeCount(Recipe recipe) {
+        return likeRepository.countByRecipe(recipe);
+    }
+}
