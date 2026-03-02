@@ -33,7 +33,7 @@ public class User {
     private String bio;
 
     @Setter
-    private String role;
+    private Role role;
 
     private LocalDateTime createdAt;
 
