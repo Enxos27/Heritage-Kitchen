@@ -24,25 +24,20 @@ public class Recipe {
     @Setter
     private String descrizione;
 
+    @Setter
     private int tempoPrep;
 
+    @Setter
     private int tempoCottura;
 
     @Setter
     @Enumerated(EnumType.STRING)
     private Difficolta difficolta;
 
-    private boolean isOriginale; //usato per migliorare e facilitare query
-
     @Setter
     @ManyToOne
     @JoinColumn(name = "parent_recipe_id")
     private Recipe parentRecipe; // Punta al "padre" diretto
-
-    @Setter
-    @ManyToOne
-    @JoinColumn(name = "root_recipe_id")
-    private Recipe rootRecipe;
 
     @Setter
     @ManyToOne
@@ -66,26 +61,7 @@ public class Recipe {
     )
     private List<Tag> tags;
 
+    @Setter
     private LocalDateTime updatedAt;
-
-    // Getter e Setter
-
-    public void setTempo_prep(int tempo_prep) {
-        this.tempoCottura = tempo_prep;
-    }
-
-    public void setTempo_cottura(int tempo_cottura) {
-        this.tempoCottura = tempo_cottura;
-    }
-
-
-    public void setIs_original(boolean isOriginale) {
-        this.isOriginale = isOriginale;
-    }
-
-
-    public void setUpdated_at(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }
 
