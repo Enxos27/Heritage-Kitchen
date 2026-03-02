@@ -2,14 +2,14 @@ package vincenzocalvaruso.Heritage_Kitchen.entity;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "Users")
 public class User {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @Column(unique = true, nullable = false)
     private String email;
@@ -19,8 +19,8 @@ public class User {
     private String avatar;
     private String bio;
     private String role;
-    private LocalDate created_at;
-    private LocalDate updated_at;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public User() {
     }
@@ -31,8 +31,8 @@ public class User {
         this.email = email;
         this.bio = bio;
         this.avatar = (avatar != null) ? avatar : "https://ui-avatars.com/api/?name=" + username;
-        this.created_at = LocalDate.now();
-        this.updated_at = LocalDate.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     // GETTER e SETTER
@@ -88,11 +88,11 @@ public class User {
         this.role = role;
     }
 
-    public LocalDate getCreated_at() {
-        return created_at;
+    public LocalDateTime getCreated_at() {
+        return createdAt;
     }
 
-    public LocalDate getUpdated_at() {
-        return updated_at;
+    public LocalDateTime getUpdated_at() {
+        return updatedAt;
     }
 }

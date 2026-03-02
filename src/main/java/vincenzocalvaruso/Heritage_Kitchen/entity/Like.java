@@ -8,7 +8,7 @@ import java.util.UUID;
 @Table(name = "likes")
 public class Like {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne

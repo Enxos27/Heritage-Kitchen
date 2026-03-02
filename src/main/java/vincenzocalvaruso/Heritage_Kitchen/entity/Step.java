@@ -9,7 +9,7 @@ import java.util.UUID;
 public class Step {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "ordine_passaggio", nullable = false)

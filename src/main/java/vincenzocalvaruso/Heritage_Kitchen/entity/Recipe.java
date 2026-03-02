@@ -2,7 +2,7 @@ package vincenzocalvaruso.Heritage_Kitchen.entity;
 
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,17 +10,17 @@ import java.util.UUID;
 @Table(name = "Ricette")
 public class Recipe {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "recipe_id")
     private UUID id;
     @Column(nullable = false)
     private String titolo;
     private String descrizione;
-    private int tempo_prep;
-    private int tempo_cottura;
+    private int tempoPrep;
+    private int tempoCottura;
     @Enumerated(EnumType.STRING)
     private Difficolta difficolta;
-    private boolean is_Original; //usato per migliorare e facilitare query
+    private boolean isOriginale; //usato per migliorare e facilitare query
     @ManyToOne
     @JoinColumn(name = "parent_recipe_id")
     private Recipe parentRecipe; // Punta al "padre" diretto
@@ -47,7 +47,7 @@ public class Recipe {
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private List<Tag> tags;
-    private LocalDate updated_at;
+    private LocalDateTime updatedAt;
 
     public Recipe() {
     }
@@ -74,19 +74,19 @@ public class Recipe {
     }
 
     public int getTempo_prep() {
-        return tempo_prep;
+        return tempoPrep;
     }
 
     public void setTempo_prep(int tempo_prep) {
-        this.tempo_prep = tempo_prep;
+        this.tempoCottura = tempo_prep;
     }
 
     public int getTempo_cottura() {
-        return tempo_cottura;
+        return tempoCottura;
     }
 
     public void setTempo_cottura(int tempo_cottura) {
-        this.tempo_cottura = tempo_cottura;
+        this.tempoCottura = tempo_cottura;
     }
 
     public Difficolta getDifficolta() {
@@ -98,11 +98,11 @@ public class Recipe {
     }
 
     public boolean isIs_original() {
-        return is_Original;
+        return isOriginale;
     }
 
-    public void setIs_original(boolean is_Original) {
-        this.is_Original = is_Original;
+    public void setIs_original(boolean isOriginale) {
+        this.isOriginale = isOriginale;
     }
 
     public Recipe getParentRecipe() {
@@ -129,12 +129,12 @@ public class Recipe {
         this.user = user;
     }
 
-    public LocalDate getUpdated_at() {
-        return updated_at;
+    public LocalDateTime getUpdated_at() {
+        return updatedAt;
     }
 
-    public void setUpdated_at(LocalDate updated_at) {
-        this.updated_at = updated_at;
+    public void setUpdated_at(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }
 
