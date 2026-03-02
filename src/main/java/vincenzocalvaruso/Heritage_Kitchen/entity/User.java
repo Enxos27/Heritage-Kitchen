@@ -1,29 +1,44 @@
 package vincenzocalvaruso.Heritage_Kitchen.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "Users")
+@Getter
+@NoArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
     @Column(unique = true, nullable = false)
     private String email;
-    private String password;
-    @Column(unique = true, nullable = false)
-    private String username;
-    private String avatar;
-    private String bio;
-    private String role;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
-    public User() {
-    }
+    private String password;
+
+    @Column(unique = true, nullable = false)
+    @Setter
+    private String username;
+
+    @Setter
+    private String avatar;
+
+    @Setter
+    private String bio;
+
+    @Setter
+    private String role;
+
+    private LocalDateTime createdAt;
+
+    @Setter
+    private LocalDateTime updatedAt;
 
     public User(String username, String password, String email, String bio, String avatar) {
         this.username = username;
@@ -35,58 +50,21 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // GETTER e SETTER
-    public UUID getId() {
-        return id;
-    }
 
-    public String getEmail() {
-        return email;
-    }
+//
+//    public void setEmail(String email) {
+//        this.email = email;
+//    }
+//
+//    public void setPassword(String password) {
+//        this.password = password;
+//    }
+//
+//
+//    public void setUsername(String username) {
+//        this.username = username;
+//    }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public String getBio() {
-        return bio;
-    }
-
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
 
     public LocalDateTime getCreated_at() {
         return createdAt;
