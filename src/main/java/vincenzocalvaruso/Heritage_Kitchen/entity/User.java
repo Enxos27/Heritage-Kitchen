@@ -59,7 +59,7 @@ public class User implements UserDetails {
     //    TODO: Testare funzionamento, in caso contrario modificare l'assegnazione dei ruoli
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(this.role.name()));
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
     }
 
     public LocalDateTime getCreated_at() {
