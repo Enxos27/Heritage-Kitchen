@@ -18,4 +18,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, UUID> {
 
     // Trova tutte le ricette di un utente specifico
     List<Recipe> findByUser(User user);
+
+    // Trova tutte le ricette di un utente specifico tramite UUID
+    List<Recipe> findByUserId(UUID userId);
 }

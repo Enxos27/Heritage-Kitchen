@@ -47,10 +47,11 @@ public class JWTCheckerFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
+    
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        return new AntPathMatcher().match(//TODO:
-                "/user/**", request.getServletPath());
+        // Salta il filtro SOLO per registrazione e login
+        return new AntPathMatcher().match("/user/register", request.getServletPath()) ||
+                new AntPathMatcher().match("/user/login", request.getServletPath());
     }
 }

@@ -66,4 +66,9 @@ public class UserService {
             throw new UnauthorizedException("Credenziali non valide!");
         }
     }
+
+    public void deleteUser(UUID id) {
+        User u = this.findById(id);
+        this.userRepository.delete(u);
+    }
 }
