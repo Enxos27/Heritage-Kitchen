@@ -1,6 +1,7 @@
 package vincenzocalvaruso.Heritage_Kitchen.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vincenzocalvaruso.Heritage_Kitchen.entity.Role;
 import vincenzocalvaruso.Heritage_Kitchen.entity.User;
@@ -16,7 +17,8 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-//TODO: criptare la password implementando la security
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public User registerUser(UserDTO body) {
         if (userRepository.findByEmail(body.email()).isPresent()) {
@@ -27,7 +29,7 @@ public class UserService {
         }
         User newUser = new User(
                 body.username(),
-                body.password(),
+                passwordEncoder.encode(body.password()),
                 body.email(),
                 body.bio(),
                 body.avatar());

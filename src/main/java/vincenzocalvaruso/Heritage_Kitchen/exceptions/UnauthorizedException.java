@@ -1,0 +1,7 @@
+package vincenzocalvaruso.Heritage_Kitchen.exceptions;
+
+public class UnauthorizedException extends RuntimeException {
+    public UnauthorizedException(String message) {
+        super(message);
+    }
+}
