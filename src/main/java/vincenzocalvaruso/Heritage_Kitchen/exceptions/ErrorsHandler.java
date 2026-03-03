@@ -50,10 +50,10 @@ public class ErrorsHandler {
         return new ErrorsPayload(ex.getMessage(), LocalDateTime.now());
     }
 
-//    @ExceptionHandler(NotEmptyException.class)
-//    @ResponseStatus(HttpStatus.BAD_REQUEST) // 400
-//    public ErrorsPayload handleNotFound(NotEmptyException ex) {
-//        return new ErrorsPayload(ex.getMessage(), LocalDateTime.now());
-//    }
+    @ExceptionHandler(NotEmptyException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST) // 400
+    public ErrorsPayload handleNotFound(NotEmptyException ex) {
+        return new ErrorsPayload(ex.getMessage(), LocalDateTime.now());
+    }
 
 }

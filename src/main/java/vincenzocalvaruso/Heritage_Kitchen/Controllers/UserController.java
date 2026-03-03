@@ -8,12 +8,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import vincenzocalvaruso.Heritage_Kitchen.Service.FollowService;
+import vincenzocalvaruso.Heritage_Kitchen.Service.RecipeService;
 import vincenzocalvaruso.Heritage_Kitchen.Service.UserService;
 import vincenzocalvaruso.Heritage_Kitchen.entity.User;
 import vincenzocalvaruso.Heritage_Kitchen.exceptions.ValidationException;
-import vincenzocalvaruso.Heritage_Kitchen.payloads.LoginDTO;
-import vincenzocalvaruso.Heritage_Kitchen.payloads.LoginResponseDTO;
-import vincenzocalvaruso.Heritage_Kitchen.payloads.UserDTO;
+import vincenzocalvaruso.Heritage_Kitchen.payloads.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +23,10 @@ import java.util.UUID;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private FollowService followService;
+    @Autowired
+    private RecipeService recipeService;
 
     // REGISTRAZIONE UTENTE
     @PostMapping("/register")
@@ -63,13 +67,26 @@ public class UserController {
         userService.deleteUser(id);
     }
 
-    //TODO: ATTENZIONE creare dto per ricezioni dati utente
-    // pubblico, non devono essere passate email e password
+    //    GET PROFILO DI UN ALTRO UTENTE
+    @GetMapping("/{id}/profile")
+    public UserPublicProfileDTO getUserProfile(@PathVariable UUID id) {
+        User user = userService.findById(id);
 
-    // PROFILO DI UN ALTRO (Pubblico)
-    @GetMapping("/{id}")
-    public User getUserById(@PathVariable UUID id) {
-        return userService.findById(id);
+        // Costruiamo le statistiche (usando la tua logica)
+        UserSocialStatsDTO stats = new UserSocialStatsDTO(
+                followService.getFollowersCount(user),
+                followService.getFollowingCount(user),
+                recipeService.findByUser(user).size()
+        );
+
+        // Restituiamo il profilo completo "impacchettato"
+        return new UserPublicProfileDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getAvatar(),
+                user.getBio(),
+                stats
+        );
     }
 
     // PATCH /user/me/avatar

@@ -13,4 +13,15 @@ public interface FollowRepository extends JpaRepository<Follow, UUID> {
     List<Follow> findByFollower(User follower); // Chi seguo?
 
     List<Follow> findByFollowing(User following); // Chi mi segue?
+
+    // Esiste già il legame?
+    boolean existsByFollowerAndFollowing(User follower, User following);
+
+    // Smetti di seguire
+    void deleteByFollowerAndFollowing(User follower, User following);
+
+    // Conta i follower e i seguiti
+    long countByFollower(User follower);
+
+    long countByFollowing(User following);
 }
