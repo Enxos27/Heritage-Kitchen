@@ -1,5 +1,6 @@
 package vincenzocalvaruso.Heritage_Kitchen.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,19 @@ import java.util.UUID;
 @Table(name = "Users")
 @Getter
 @NoArgsConstructor
+@JsonIgnoreProperties({
+        "password",
+        "authorities",
+        "accountNonExpired",
+        "accountNonLocked",
+        "credentialsNonExpired",
+        "enabled",
+        "created_at",    // duplicato in snake_case
+        "updated_at",    // duplicato in snake_case
+        "role",
+        "createdAt",
+        "updatedAt"
+})
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

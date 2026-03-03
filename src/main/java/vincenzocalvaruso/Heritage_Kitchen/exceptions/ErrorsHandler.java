@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import vincenzocalvaruso.Heritage_Kitchen.payloads.ErrorsPayload;
+import vincenzocalvaruso.Heritage_Kitchen.payloads.ErrorsWithListDTO;
 
 import java.time.LocalDateTime;
 
@@ -37,11 +38,11 @@ public class ErrorsHandler {
         return new ErrorsPayload("C'è stato un imprevisto, ci scusiamo per il disagio e la preghiamo a riprovare più tardi!", LocalDateTime.now());
     }
 
-//    @ExceptionHandler(ValidationException.class)
-//    @ResponseStatus(HttpStatus.BAD_REQUEST) // 400
-//    public ErrorsWithListDTO handleValidationException(ValidationException ex) {
-//        return new ErrorsWithListDTO(ex.getMessage(), LocalDateTime.now(), ex.getErrorsMessages());
-//    }
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST) // 400
+    public ErrorsWithListDTO handleValidationException(ValidationException ex) {
+        return new ErrorsWithListDTO(ex.getMessage(), LocalDateTime.now(), ex.getErrorsMessages());
+    }
 
     @ExceptionHandler(UnauthorizedException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED) // 401
