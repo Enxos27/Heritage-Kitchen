@@ -7,6 +7,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vincenzocalvaruso.Heritage_Kitchen.Service.UserService;
 import vincenzocalvaruso.Heritage_Kitchen.entity.User;
 import vincenzocalvaruso.Heritage_Kitchen.exceptions.ValidationException;
@@ -23,6 +24,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    // REGISTRAZIONE UTENTE
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public User createUser(@RequestBody @Validated UserDTO dto, BindingResult validationResult) {
@@ -38,17 +40,20 @@ public class UserController {
         }
     }
 
+    // LOGIN UTENTE
     @PostMapping("/login")
     public LoginResponseDTO login(@RequestBody LoginDTO body) {
         return new LoginResponseDTO(this.userService.authenticateUserAndGenerateToken(body));
     }
 
+    // IL MIO PROFILO (Privato)
     @GetMapping("/me")
     public User getProfile(@AuthenticationPrincipal User currentUser) {
         // Grazie al JWTCheckerFilter, l'utente è già nel contesto di sicurezza
         return currentUser;
     }
 
+    // ELIMINA UTENTE
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
@@ -60,8 +65,21 @@ public class UserController {
 
     //TODO: ATTENZIONE creare dto per ricezioni dati utente
     // pubblico, non devono essere passate email e password
+
+    // PROFILO DI UN ALTRO (Pubblico)
     @GetMapping("/{id}")
     public User getUserById(@PathVariable UUID id) {
         return userService.findById(id);
+    }
+
+    // PATCH /user/me/avatar
+    // CARICO AVATAR; RECUPERO UTENTE DAL TOKEN
+    @PatchMapping("/me/avatar")
+    public User uploadMyAvatar(
+            @RequestParam("avatar") MultipartFile file,
+            @AuthenticationPrincipal User currentUser // Recupera l'utente dal Token
+    ) {
+        // Uso l'ID dell'utente loggato, garantendo la sicurezza al 100%
+        return this.userService.findByIdAndUploadAvatar(currentUser.getId(), file);
     }
 }
