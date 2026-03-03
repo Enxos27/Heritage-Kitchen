@@ -29,6 +29,7 @@ import java.util.UUID;
         "updated_at",    // duplicato in snake_case
         "role",
         "createdAt",
+        "email",
         "updatedAt"
 })
 public class User implements UserDetails {

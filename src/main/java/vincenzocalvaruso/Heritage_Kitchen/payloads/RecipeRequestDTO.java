@@ -1,23 +1,31 @@
 package vincenzocalvaruso.Heritage_Kitchen.payloads;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 import java.util.UUID;
 
 public record RecipeRequestDTO(
-        @NotBlank
+        @NotBlank(message = "Il titolo è obbligatorio")
         String titolo,
-        @NotBlank
+
+        @NotBlank(message = "La descrizione è obbligatoria")
         String descrizione,
-        @NotBlank
-        String difficolta, // facile - medio - difficile
-        @NotBlank
+
+        @NotBlank(message = "La difficoltà è obbligatoria")
+        String difficolta,
+
+        @NotNull(message = "Il tempo di preparazione è obbligatorio")
+        @Min(value = 1, message = "Il tempo di preparazione deve essere almeno di 1 minuto")
         int tempoPrep,
-        @NotBlank
+
+        @NotNull(message = "Il tempo di cottura è obbligatorio")
+        @Min(value = 0, message = "Il tempo di cottura non può essere negativo")
         int tempoCottura,
 
-        UUID parentRecipeId, // Il punto chiave per il versioning --> se null è la root, se ha un valore è un "fork"
+        UUID parentRecipeId,
 
         List<IngredientDTO> ingredienti,
         List<StepDTO> steps,

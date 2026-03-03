@@ -1,5 +1,6 @@
 package vincenzocalvaruso.Heritage_Kitchen.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,7 @@ public class Step {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @JsonIgnore
     private UUID id;
 
     @Setter
@@ -28,6 +30,7 @@ public class Step {
     @Setter
     @ManyToOne
     @JoinColumn(name = "recipe_id", nullable = false)
+    @JsonIgnore
     private Recipe recipe; // La ricetta a cui appartiene questo step
 
 }

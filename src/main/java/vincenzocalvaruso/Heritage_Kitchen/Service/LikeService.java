@@ -7,6 +7,8 @@ import vincenzocalvaruso.Heritage_Kitchen.entity.Recipe;
 import vincenzocalvaruso.Heritage_Kitchen.entity.User;
 import vincenzocalvaruso.Heritage_Kitchen.repository.LikeRepository;
 
+import java.util.List;
+
 @Service
 public class LikeService {
     @Autowired
@@ -28,5 +30,13 @@ public class LikeService {
 
     public long getRecipeLikeCount(Recipe recipe) {
         return likeRepository.countByRecipe(recipe);
+    }
+
+    // Restituisce la lista di RICETTE a cui l'utente ha messo like
+    public List<Recipe> getUserFavorites(User user) {
+        return likeRepository.findByUser(user)
+                .stream()
+                .map(Like::getRecipe)
+                .toList();
     }
 }

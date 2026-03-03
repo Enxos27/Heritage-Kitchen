@@ -19,6 +19,13 @@ public interface RecipeRepository extends JpaRepository<Recipe, UUID> {
     // Trova tutte le ricette di un utente specifico
     List<Recipe> findByUser(User user);
 
+
     // Trova tutte le ricette di un utente specifico tramite UUID
     List<Recipe> findByUserId(UUID userId);
+
+    // Ricerca per titolo che contiene la stringa (Case Insensitive)
+    List<Recipe> findByTitoloContainingIgnoreCase(String titolo);
+
+    // Trova tutte le ricette che hanno un determinato tag (per nome)
+    List<Recipe> findByTags_NomeIgnoreCase(String tagName);
 }

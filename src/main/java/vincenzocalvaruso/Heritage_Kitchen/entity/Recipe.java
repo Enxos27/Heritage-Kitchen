@@ -1,8 +1,11 @@
 package vincenzocalvaruso.Heritage_Kitchen.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,6 +14,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "Ricette")
 @NoArgsConstructor
+@Getter
 public class Recipe {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -64,7 +68,15 @@ public class Recipe {
     )
     private List<Tag> tags;
 
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
     @Setter
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    @Setter
+    private String imageURL;
 }
 

@@ -1,17 +1,24 @@
 package vincenzocalvaruso.Heritage_Kitchen.Service;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import vincenzocalvaruso.Heritage_Kitchen.entity.*;
+import vincenzocalvaruso.Heritage_Kitchen.exceptions.NotEmptyException;
 import vincenzocalvaruso.Heritage_Kitchen.exceptions.NotFoundException;
+import vincenzocalvaruso.Heritage_Kitchen.exceptions.UnauthorizedException;
 import vincenzocalvaruso.Heritage_Kitchen.payloads.IngredientDTO;
 import vincenzocalvaruso.Heritage_Kitchen.payloads.RecipeRequestDTO;
 import vincenzocalvaruso.Heritage_Kitchen.payloads.StepDTO;
 import vincenzocalvaruso.Heritage_Kitchen.repository.RecipeRepository;
 import vincenzocalvaruso.Heritage_Kitchen.repository.UserRepository;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -21,8 +28,11 @@ public class RecipeService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private Cloudinary cloudinaryUploader;
+    @Autowired
     private TagService tagService;
 
+    //     CREA RICETTA
     public Recipe createRecipe(RecipeRequestDTO dto, User autore) {
         Recipe recipe = new Recipe();
         recipe.setTitolo(dto.titolo());
@@ -75,25 +85,118 @@ public class RecipeService {
         return repository.save(recipe);
     }
 
+    //  TROVA TUTTE LE RICETTE
     public List<Recipe> getAllRecipes() {
         return repository.findAll();
     }
 
+    // TROVA RICETTA PER ID RICETTA
     public Recipe getRecipeById(UUID id) {
         return repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Ricetta non trovata"));
     }
 
+    // TROVA TUTTE RICETTE ORIGINALI
     public List<Recipe> getOriginalRecipes() {
         return repository.findByParentRecipeIsNull();
     }
 
+    // TROVA RICETTE "FORK" TRAMITE ID RICETTA ORIGINALE
     public List<Recipe> findByParentRecipe(Recipe parent) {
         return repository.findByParentRecipe(parent);
     }
 
+    // TROVA RICETTE IN BASE ALL'USER
     public List<Recipe> findByUser(User user) {
         return repository.findByUser(user);
     }
 
+    // TROVA RICETTA PER ID E MODIFICA IMMAGINE (solo proprietario o ADMIN)
+    public Recipe findByIdAndUploadImage(UUID recipeId, MultipartFile file, User currentUser) {
+        if (file.isEmpty()) throw new NotEmptyException();
+
+        // Cerco la ricetta
+        Recipe found = repository.findById(recipeId)
+                .orElseThrow(() -> new NotFoundException("Ricetta non trovata"));
+
+        // SICUREZZA: verifico che l'utente loggato sia l'autore della ricetta
+        if (!found.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedException("Non puoi caricare foto per ricette non tue!");
+        }
+
+        try {
+            // Carichiamo su Cloudinary
+            Map result = cloudinaryUploader.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            String imageUrl = (String) result.get("secure_url");
+
+            // Aggiorniamo l'URL nell'entità
+            found.setImageURL(imageUrl);
+
+            return repository.save(found);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Errore durante l'upload dell'immagine", e);
+        }
+    }
+
+    // TROVA RICETTA E LA MODIFICA (solo proprietario)
+    public Recipe updateRecipe(UUID id, RecipeRequestDTO dto, User currentUser) {
+        Recipe found = this.getRecipeById(id);
+
+        // Controllo sicurezza: solo l'autore può modificare
+        if (!found.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedException("Non hai i permessi per modificare questa ricetta.");
+        }
+
+        // Aggiornamento campi base
+        found.setTitolo(dto.titolo());
+        found.setDescrizione(dto.descrizione());
+        found.setTempoPrep(dto.tempoPrep());
+        found.setTempoCottura(dto.tempoCottura());
+        found.setDifficolta(Difficolta.valueOf(dto.difficolta()));
+
+        // Per Ingredienti e Step: svuotiamo e ricreiamo
+        // (Grazie a orphanRemoval=true, JPA pulisce il DB per noi)
+        found.getIngredienti().clear();
+        dto.ingredienti().forEach(iDto -> {
+            Ingredient ing = new Ingredient();
+            ing.setNome(iDto.nome());
+            ing.setQuantita(iDto.quantita());
+            ing.setRecipe(found);
+            found.getIngredienti().add(ing);
+        });
+
+        found.getSteps().clear();
+        dto.steps().forEach(sDto -> {
+            Step step = new Step();
+            step.setOrdine(sDto.ordine());
+            step.setDescrizione(sDto.descrizione());
+            step.setRecipe(found);
+            found.getSteps().add(step);
+        });
+
+        return repository.save(found);
+    }
+
+    // ELIMINA RICETTA (solo proprietario o ADMIN)
+    public void deleteRecipe(UUID id, User currentUser) {
+        Recipe found = this.getRecipeById(id);
+
+        // Solo l'autore o un ADMIN possono eliminare
+        if (!found.getUser().getId().equals(currentUser.getId()) &&
+                !currentUser.getRole().name().equals("ADMIN")) {
+            throw new UnauthorizedException("Non puoi eliminare una ricetta non tua.");
+        }
+
+        repository.delete(found);
+    }
+
+    public List<Recipe> findRecipesByTag(String tagName) {
+        return repository.findByTags_NomeIgnoreCase(tagName);
+    }
+
+    // RICERCA RICETTA PER TITOLO (Case Insensitive)
+    public List<Recipe> searchRecipes(String query) {
+        return repository.findByTitoloContainingIgnoreCase(query);
+    }
 }

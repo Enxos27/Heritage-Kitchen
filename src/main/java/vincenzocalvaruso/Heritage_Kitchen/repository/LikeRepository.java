@@ -6,6 +6,7 @@ import vincenzocalvaruso.Heritage_Kitchen.entity.Like;
 import vincenzocalvaruso.Heritage_Kitchen.entity.Recipe;
 import vincenzocalvaruso.Heritage_Kitchen.entity.User;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -15,4 +16,7 @@ public interface LikeRepository extends JpaRepository<Like, UUID> {
     boolean existsByUserAndRecipe(User user, Recipe recipe);  // L'utente ha già messo like?
 
     void deleteByUserAndRecipe(User user, Recipe recipe);
+
+    // like di un utente specifico
+    List<Like> findByUser(User user);
 }
