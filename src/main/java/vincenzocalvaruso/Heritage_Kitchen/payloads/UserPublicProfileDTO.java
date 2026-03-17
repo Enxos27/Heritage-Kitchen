@@ -7,6 +7,7 @@ public record UserPublicProfileDTO(
         String username,
         String avatar,
         String bio,
-        UserSocialStatsDTO stats
+        UserSocialStatsDTO stats,
+        boolean isFollowedByMe
 ) {
 }

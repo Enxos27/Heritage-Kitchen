@@ -1,4 +1,4 @@
 package vincenzocalvaruso.Heritage_Kitchen.payloads;
 
-public record LoginResponseDTO(String token) {
+public record LoginResponseDTO(String accessToken, UserPublicProfileDTO user) {
 }

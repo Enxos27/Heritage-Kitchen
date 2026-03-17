@@ -11,7 +11,10 @@ import vincenzocalvaruso.Heritage_Kitchen.exceptions.NotFoundException;
 import vincenzocalvaruso.Heritage_Kitchen.exceptions.UnauthorizedException;
 import vincenzocalvaruso.Heritage_Kitchen.payloads.IngredientDTO;
 import vincenzocalvaruso.Heritage_Kitchen.payloads.RecipeRequestDTO;
+import vincenzocalvaruso.Heritage_Kitchen.payloads.RecipeResponseDTO;
 import vincenzocalvaruso.Heritage_Kitchen.payloads.StepDTO;
+import vincenzocalvaruso.Heritage_Kitchen.repository.FollowRepository;
+import vincenzocalvaruso.Heritage_Kitchen.repository.LikeRepository;
 import vincenzocalvaruso.Heritage_Kitchen.repository.RecipeRepository;
 import vincenzocalvaruso.Heritage_Kitchen.repository.UserRepository;
 
@@ -31,6 +34,10 @@ public class RecipeService {
     private Cloudinary cloudinaryUploader;
     @Autowired
     private TagService tagService;
+    @Autowired
+    private LikeRepository likeRepository;
+    @Autowired
+    private FollowRepository followRepository;
 
     //     CREA RICETTA
     public Recipe createRecipe(RecipeRequestDTO dto, User autore) {
@@ -198,5 +205,30 @@ public class RecipeService {
     // RICERCA RICETTA PER TITOLO (Case Insensitive)
     public List<Recipe> searchRecipes(String query) {
         return repository.findByTitoloContainingIgnoreCase(query);
+    }
+
+    public RecipeResponseDTO getRecipeDetail(UUID id, User currentUser) {
+        Recipe recipe = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Ricetta non trovata"));
+
+        boolean liked = false;
+        boolean following = false;
+
+        if (currentUser != null) {
+            liked = likeRepository.existsByUserAndRecipe(currentUser, recipe);
+            following = followRepository.existsByFollowerAndFollowing(currentUser, recipe.getUser());
+        }
+
+        return new RecipeResponseDTO(recipe, liked, following);
+    }
+
+    public List<Recipe> findLikedRecipesByUser(User user) {
+        // 1. Recuperiamo tutti i record della tabella Like per quell'utente
+        List<Like> likes = likeRepository.findByUser(user);
+
+        // 2. Estraiamo la ricetta da ogni oggetto Like e restituiamo la lista
+        return likes.stream()
+                .map(Like::getRecipe)
+                .toList();
     }
 }

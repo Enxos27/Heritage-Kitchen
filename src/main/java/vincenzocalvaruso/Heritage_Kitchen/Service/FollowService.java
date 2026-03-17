@@ -37,4 +37,9 @@ public class FollowService {
     public long getFollowingCount(User user) {
         return followRepository.countByFollower(user);
     }
+
+    public boolean isFollowing(User follower, User following) {
+        if (follower == null || following == null) return false;
+        return followRepository.existsByFollowerAndFollowing(follower, following);
+    }
 }

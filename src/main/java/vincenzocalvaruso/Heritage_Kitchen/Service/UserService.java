@@ -13,11 +13,11 @@ import vincenzocalvaruso.Heritage_Kitchen.exceptions.BadRequestException;
 import vincenzocalvaruso.Heritage_Kitchen.exceptions.NotEmptyException;
 import vincenzocalvaruso.Heritage_Kitchen.exceptions.NotFoundException;
 import vincenzocalvaruso.Heritage_Kitchen.exceptions.UnauthorizedException;
-import vincenzocalvaruso.Heritage_Kitchen.payloads.LoginDTO;
-import vincenzocalvaruso.Heritage_Kitchen.payloads.UserDTO;
+import vincenzocalvaruso.Heritage_Kitchen.payloads.*;
 import vincenzocalvaruso.Heritage_Kitchen.repository.UserRepository;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -62,19 +62,36 @@ public class UserService {
 
 
     // LOGIN UTENTE + GENERA E RESTITUISCE TOKEN
-    public String authenticateUserAndGenerateToken(LoginDTO dto) {
-        // 1. Cerco l'utente nel DB tramite email
+    // Cambia il tipo di ritorno da String a LoginResponseDTO
+    public LoginResponseDTO authenticateUserAndGenerateToken(LoginDTO dto) {
+        // 1. Cerco l'utente nel DB tramite username
         User user = userRepository.findByUsername(dto.username())
-                .orElseThrow(() -> new UnauthorizedException("Utente non trovato!"));
+                .orElseThrow(() -> new UnauthorizedException("Credenziali non valide!"));
 
-        // 2. Verifico se la password fornita (in chiaro) corrisponde a quella nel DB (criptata)
+        // 2. Verifico la password
         if (passwordEncoder.matches(dto.password(), user.getPassword())) {
 
-            // 3. Se corrispondono, genero il token
-            return jwtTools.generateToken(user);
+            // 3. Genero il token
+            String accessToken = jwtTools.generateToken(user);
+
+            // 4. Mappo i dati dell'utente nel DTO per il profilo pubblico (Sidebar)
+            // Se non hai ancora le stats nel database, puoi passare valori finti o 0 per ora
+            UserSocialStatsDTO stats = new UserSocialStatsDTO(0, 0, 0);
+
+            UserPublicProfileDTO userProfile = new UserPublicProfileDTO(
+                    user.getId(),
+                    user.getUsername(),
+                    user.getAvatar(),
+                    user.getBio(),
+                    stats,
+                    false
+            );
+
+            // 5. Restituisco l'oggetto completo (con accessToken e user)
+            // Assicurati che il record LoginResponseDTO abbia questi nomi!
+            return new LoginResponseDTO(accessToken, userProfile);
 
         } else {
-            // 4. Se non corrispondono, lancio un'eccezione
             throw new UnauthorizedException("Credenziali non valide!");
         }
     }
@@ -101,5 +118,15 @@ public class UserService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public User updateBio(UUID userId, String newBio) {
+        User user = findById(userId);
+        user.setBio(newBio);
+        return userRepository.save(user);
+    }
+
+    public List<User> findAllUsers() {
+        return userRepository.findAll();
     }
 }
