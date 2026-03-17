@@ -3,6 +3,7 @@ package vincenzocalvaruso.Heritage_Kitchen.Controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import vincenzocalvaruso.Heritage_Kitchen.Service.FollowService;
 import vincenzocalvaruso.Heritage_Kitchen.Service.RecipeService;
@@ -24,6 +25,7 @@ public class FollowerController {
     private RecipeService recipeService;
 
     // POST /social/follow/{userId} -> Segui o Smetti di seguire
+    @Transactional
     @PostMapping("/follow/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public void follow(@PathVariable UUID userId, @AuthenticationPrincipal User currentUser) {

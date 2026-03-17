@@ -47,7 +47,8 @@ public class UserController {
     // LOGIN UTENTE
     @PostMapping("/login")
     public LoginResponseDTO login(@RequestBody LoginDTO body) {
-        return new LoginResponseDTO(this.userService.authenticateUserAndGenerateToken(body));
+        // Ora il service restituisce l'oggetto completo, non solo la stringa
+        return userService.authenticateUserAndGenerateToken(body);
     }
 
     // IL MIO PROFILO (Privato)
@@ -69,24 +70,19 @@ public class UserController {
 
     //    GET PROFILO DI UN ALTRO UTENTE
     @GetMapping("/{id}/profile")
-    public UserPublicProfileDTO getUserProfile(@PathVariable UUID id) {
+    public UserPublicProfileDTO getUserProfile(@PathVariable UUID id, @AuthenticationPrincipal User currentUser) {
         User user = userService.findById(id);
 
-        // Costruiamo le statistiche (usando la tua logica)
+        // Controlla il follow
+        boolean followedByMe = followService.isFollowing(currentUser, user);
+
         UserSocialStatsDTO stats = new UserSocialStatsDTO(
                 followService.getFollowersCount(user),
                 followService.getFollowingCount(user),
                 recipeService.findByUser(user).size()
         );
 
-        // Restituiamo il profilo completo "impacchettato"
-        return new UserPublicProfileDTO(
-                user.getId(),
-                user.getUsername(),
-                user.getAvatar(),
-                user.getBio(),
-                stats
-        );
+        return new UserPublicProfileDTO(user.getId(), user.getUsername(), user.getAvatar(), user.getBio(), stats, followedByMe);
     }
 
     // PATCH /user/me/avatar
@@ -98,5 +94,19 @@ public class UserController {
     ) {
         // Uso l'ID dell'utente loggato, garantendo la sicurezza al 100%
         return this.userService.findByIdAndUploadAvatar(currentUser.getId(), file);
+    }
+
+    @PutMapping("/me/bio")
+    public User updateMyBio(@AuthenticationPrincipal User currentUser, @RequestBody String newBio) {
+        // Nota: Se invii solo una stringa cruda, il body è il testo stesso
+        return userService.updateBio(currentUser.getId(), newBio);
+    }
+
+    @GetMapping("/suggestions")
+    public List<User> getSuggestions(@AuthenticationPrincipal User currentUser) {
+        return userService.findAllUsers().stream()
+                .filter(user -> !user.getId().equals(currentUser.getId())) //escludo me stesso
+                .limit(5) // Ne prendo solo 5 per la sidebar
+                .toList();
     }
 }

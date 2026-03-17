@@ -12,6 +12,7 @@ import vincenzocalvaruso.Heritage_Kitchen.Service.UserService;
 import vincenzocalvaruso.Heritage_Kitchen.entity.Recipe;
 import vincenzocalvaruso.Heritage_Kitchen.entity.User;
 import vincenzocalvaruso.Heritage_Kitchen.payloads.RecipeRequestDTO;
+import vincenzocalvaruso.Heritage_Kitchen.payloads.RecipeResponseDTO;
 
 import java.util.List;
 import java.util.UUID;
@@ -51,8 +52,8 @@ public class RecipeController {
 
     // 4. DETTAGLIO RICETTA
     @GetMapping("/{id}")
-    public Recipe getById(@PathVariable UUID id) {
-        return recipeService.getRecipeById(id);
+    public RecipeResponseDTO getById(@PathVariable UUID id, @AuthenticationPrincipal User currentUser) {
+        return recipeService.getRecipeDetail(id, currentUser);
     }
 
     // 5. TUTTE LE VERSIONI DI UNA RICETTA SPECIFICA (Versioning Explorer)
@@ -106,5 +107,10 @@ public class RecipeController {
     @GetMapping("/tag/{tagName}")
     public List<Recipe> getByTag(@PathVariable String tagName) {
         return recipeService.findRecipesByTag(tagName);
+    }
+
+    @GetMapping("/me/liked")
+    public List<Recipe> getMyLikedRecipes(@AuthenticationPrincipal User currentUser) {
+        return recipeService.findLikedRecipesByUser(currentUser);
     }
 }

@@ -3,6 +3,7 @@ package vincenzocalvaruso.Heritage_Kitchen.Controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import vincenzocalvaruso.Heritage_Kitchen.Service.LikeService;
 import vincenzocalvaruso.Heritage_Kitchen.Service.RecipeService;
@@ -22,6 +23,7 @@ public class LikeController {
     private RecipeService recipeService;
 
     // POST /likes/recipe/{recipeId} -> Clicco sul cuore
+    @Transactional
     @PostMapping("/recipe/{recipeId}")
     @ResponseStatus(HttpStatus.OK)
     public void toggleRecipeLike(@PathVariable UUID recipeId, @AuthenticationPrincipal User currentUser) {
