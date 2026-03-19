@@ -1,6 +1,8 @@
 package vincenzocalvaruso.Heritage_Kitchen.Controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -108,5 +110,13 @@ public class UserController {
                 .filter(user -> !user.getId().equals(currentUser.getId())) //escludo me stesso
                 .limit(5) // Ne prendo solo 5 per la sidebar
                 .toList();
+    }
+
+    @GetMapping("/explore")
+    public Slice<ExploreChefDTO> getExplore(
+            @AuthenticationPrincipal User currentUser,
+            Pageable pageable // Spring gestisce automaticamente page, size e sort dai parametri URL
+    ) {
+        return userService.getExplorePage(currentUser, pageable);
     }
 }
