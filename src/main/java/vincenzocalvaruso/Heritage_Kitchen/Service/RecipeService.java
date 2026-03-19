@@ -126,9 +126,10 @@ public class RecipeService {
         Recipe found = repository.findById(recipeId)
                 .orElseThrow(() -> new NotFoundException("Ricetta non trovata"));
 
-        // SICUREZZA: verifico che l'utente loggato sia l'autore della ricetta
-        if (!found.getUser().getId().equals(currentUser.getId())) {
-            throw new UnauthorizedException("Non puoi caricare foto per ricette non tue!");
+        // SICUREZZA: verifico che l'utente loggato sia l'autore della ricetta altrimenti sia un ADMIN
+        if (!found.getUser().getId().equals(currentUser.getId()) &&
+                !currentUser.getRole().name().equals("ADMIN")) {
+            throw new UnauthorizedException("Permesso negato");
         }
 
         try {
@@ -151,8 +152,9 @@ public class RecipeService {
         Recipe found = this.getRecipeById(id);
 
         // Controllo sicurezza: solo l'autore può modificare
-        if (!found.getUser().getId().equals(currentUser.getId())) {
-            throw new UnauthorizedException("Non hai i permessi per modificare questa ricetta.");
+        if (!found.getUser().getId().equals(currentUser.getId()) &&
+                !currentUser.getRole().name().equals("ADMIN")) {
+            throw new UnauthorizedException("Permesso negato");
         }
 
         // Aggiornamento campi base
@@ -193,6 +195,17 @@ public class RecipeService {
         if (!found.getUser().getId().equals(currentUser.getId()) &&
                 !currentUser.getRole().name().equals("ADMIN")) {
             throw new UnauthorizedException("Non puoi eliminare una ricetta non tua.");
+        }
+
+        // Recupero le varianti(FORK)
+        List<Recipe> variants = repository.findByParentRecipe(found);
+
+        // Sgancio le varianti
+        if (!variants.isEmpty()) {
+            variants.forEach(v -> {
+                v.setParentRecipe(null); // Diventano ricette originali
+            });
+            repository.saveAll(variants); // Aggiorna tutte le varianti in un colpo solo
         }
 
         repository.delete(found);
