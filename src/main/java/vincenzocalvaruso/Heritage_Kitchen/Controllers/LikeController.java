@@ -9,6 +9,7 @@ import vincenzocalvaruso.Heritage_Kitchen.Service.LikeService;
 import vincenzocalvaruso.Heritage_Kitchen.Service.RecipeService;
 import vincenzocalvaruso.Heritage_Kitchen.entity.Recipe;
 import vincenzocalvaruso.Heritage_Kitchen.entity.User;
+import vincenzocalvaruso.Heritage_Kitchen.payloads.LikeNotificationDTO;
 
 import java.util.List;
 import java.util.UUID;
@@ -35,5 +36,10 @@ public class LikeController {
     @GetMapping("/me")
     public List<Recipe> getMyFavorites(@AuthenticationPrincipal User currentUser) {
         return likeService.getUserFavorites(currentUser);
+    }
+
+    @GetMapping("/notifications/likes")
+    public List<LikeNotificationDTO> getNotifications(@AuthenticationPrincipal User currentUser) {
+        return likeService.getRecentLikeNotifications(currentUser);
     }
 }

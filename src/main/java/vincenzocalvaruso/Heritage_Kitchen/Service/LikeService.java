@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import vincenzocalvaruso.Heritage_Kitchen.entity.Like;
 import vincenzocalvaruso.Heritage_Kitchen.entity.Recipe;
 import vincenzocalvaruso.Heritage_Kitchen.entity.User;
+import vincenzocalvaruso.Heritage_Kitchen.payloads.LikeNotificationDTO;
 import vincenzocalvaruso.Heritage_Kitchen.repository.LikeRepository;
 
 import java.util.List;
@@ -38,5 +39,19 @@ public class LikeService {
                 .stream()
                 .map(Like::getRecipe)
                 .toList();
+    }
+
+    public List<LikeNotificationDTO> getRecentLikeNotifications(User currentUser) {
+        List<Like> likes = likeRepository.findRecentLikesForUser(currentUser.getId());
+
+        return likes.stream()
+                .filter(l -> !l.getUser().getId().equals(currentUser.getId())) // Esclude i propri like
+                .map(l -> new LikeNotificationDTO(
+                        l.getUser().getUsername(),
+                        l.getUser().getAvatar(),
+                        l.getRecipe().getTitolo(),
+                        l.getRecipe().getId(),
+                        l.getCreatedAt()
+                )).toList();
     }
 }
