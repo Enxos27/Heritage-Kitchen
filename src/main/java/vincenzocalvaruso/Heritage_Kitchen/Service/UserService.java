@@ -3,6 +3,8 @@ package vincenzocalvaruso.Heritage_Kitchen.Service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +16,8 @@ import vincenzocalvaruso.Heritage_Kitchen.exceptions.NotEmptyException;
 import vincenzocalvaruso.Heritage_Kitchen.exceptions.NotFoundException;
 import vincenzocalvaruso.Heritage_Kitchen.exceptions.UnauthorizedException;
 import vincenzocalvaruso.Heritage_Kitchen.payloads.*;
+import vincenzocalvaruso.Heritage_Kitchen.repository.FollowRepository;
+import vincenzocalvaruso.Heritage_Kitchen.repository.RecipeRepository;
 import vincenzocalvaruso.Heritage_Kitchen.repository.UserRepository;
 
 import java.io.IOException;
@@ -34,6 +38,10 @@ public class UserService {
 
     @Autowired
     private Cloudinary cloudinaryUploader;
+    @Autowired
+    private RecipeRepository recipeRepository;
+    @Autowired
+    private FollowRepository followRepository;
 
     // REGISRA UTENTE
     public User registerUser(UserDTO body) {
@@ -128,5 +136,35 @@ public class UserService {
 
     public List<User> findAllUsers() {
         return userRepository.findAll();
+    }
+
+    // Questo metodo mi permette di migliorare le prestazioni della pagina Explore, evitandomi di dover fare
+    // molte chiamate e rallentando il caricamento della pagina.
+    // Con questa funzione ricevo tutto ciò che mi serve per la composizione della pagina Explore con 1 chiamata
+    public Slice<ExploreChefDTO> getExplorePage(User currentUser, Pageable pageable) {
+        // 1. Prendo la "fetta" di utenti dal DB
+        Slice<User> usersSlice = userRepository.findAllByIdNot(currentUser.getId(), pageable);
+
+        // 2. Trasformo ogni User in ExploreChefDTO
+        return usersSlice.map(user -> {
+            // Recupero le ultime 3 ricette dell'utente
+            List<RecipePreviewDTO> recipes = recipeRepository.findByUser(user)
+                    .stream()
+                    .limit(3)
+                    .map(r -> new RecipePreviewDTO(r.getId(), r.getTitolo(), r.getImageURL()))
+                    .toList();
+
+            // Verifico se l'utente loggato lo segue
+            boolean isFollowed = followRepository.existsByFollowerAndFollowing(currentUser, user);
+
+            return new ExploreChefDTO(
+                    user.getId(),
+                    user.getUsername(),
+                    user.getAvatar(),
+                    user.getBio(),
+                    isFollowed,
+                    recipes
+            );
+        });
     }
 }
