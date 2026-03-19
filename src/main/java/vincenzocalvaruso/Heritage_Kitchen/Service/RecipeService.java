@@ -3,7 +3,10 @@ package vincenzocalvaruso.Heritage_Kitchen.Service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vincenzocalvaruso.Heritage_Kitchen.entity.*;
 import vincenzocalvaruso.Heritage_Kitchen.exceptions.NotEmptyException;
@@ -93,8 +96,8 @@ public class RecipeService {
     }
 
     //  TROVA TUTTE LE RICETTE
-    public List<Recipe> getAllRecipes() {
-        return repository.findAll();
+    public Page<Recipe> findAll(Pageable pageable) {
+        return repository.findAll(pageable);
     }
 
     // TROVA RICETTA PER ID RICETTA
@@ -148,6 +151,7 @@ public class RecipeService {
     }
 
     // TROVA RICETTA E LA MODIFICA (solo proprietario)
+    @Transactional
     public Recipe updateRecipe(UUID id, RecipeRequestDTO dto, User currentUser) {
         Recipe found = this.getRecipeById(id);
 
@@ -155,6 +159,16 @@ public class RecipeService {
         if (!found.getUser().getId().equals(currentUser.getId()) &&
                 !currentUser.getRole().name().equals("ADMIN")) {
             throw new UnauthorizedException("Permesso negato");
+        }
+
+        found.getTags().clear();
+
+        if (dto.tags() != null) {
+            dto.tags().forEach(tagName -> {
+                Tag tag = tagService.saveTag(tagName);
+                // 4. Lo aggiungiamo alla collezione della ricetta
+                found.getTags().add(tag);
+            });
         }
 
         // Aggiornamento campi base
@@ -188,6 +202,7 @@ public class RecipeService {
     }
 
     // ELIMINA RICETTA (solo proprietario o ADMIN)
+    @Transactional
     public void deleteRecipe(UUID id, User currentUser) {
         Recipe found = this.getRecipeById(id);
 
@@ -207,6 +222,8 @@ public class RecipeService {
             });
             repository.saveAll(variants); // Aggiorna tutte le varianti in un colpo solo
         }
+
+        likeRepository.deleteByRecipe(found);
 
         repository.delete(found);
     }

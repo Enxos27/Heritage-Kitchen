@@ -3,6 +3,10 @@ package vincenzocalvaruso.Heritage_Kitchen.Controllers;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -39,9 +43,15 @@ public class RecipeController {
     }
 
     // 2. TUTTE LE RICETTE (Per la ricerca globale)
+
     @GetMapping
-    public List<Recipe> getAll() {
-        return recipeService.getAllRecipes();
+    public Page<Recipe> getAllRecipes(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size,
+            @RequestParam(defaultValue = "createdAt,desc") String sort) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return recipeService.findAll(pageable);
     }
 
     // 3. SOLO LE ORIGINALI (Per la bacheca principale / home)

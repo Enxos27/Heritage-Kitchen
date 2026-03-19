@@ -19,6 +19,8 @@ public interface LikeRepository extends JpaRepository<Like, UUID> {
 
     void deleteByUserAndRecipe(User user, Recipe recipe);
 
+    void deleteByRecipe(Recipe recipe);
+
     // like di un utente specifico
     List<Like> findByUser(User user);
 

@@ -6,6 +6,7 @@ import vincenzocalvaruso.Heritage_Kitchen.entity.Tag;
 import vincenzocalvaruso.Heritage_Kitchen.repository.TagRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TagService {
@@ -26,4 +27,9 @@ public class TagService {
                     return tagRepository.save(newTag);
                 });
     }
+
+    public Optional<Tag> findByNome(String nome) {
+        return tagRepository.findByNome(nome);
+    }
+
 }
