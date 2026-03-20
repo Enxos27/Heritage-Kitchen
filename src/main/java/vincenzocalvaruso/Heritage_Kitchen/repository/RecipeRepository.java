@@ -28,4 +28,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, UUID> {
 
     // Trova tutte le ricette che hanno un determinato tag (per nome)
     List<Recipe> findByTags_NomeIgnoreCase(String tagName);
+
+    // Conta quante varianti dirette ha una determinata ricetta
+    long countByParentRecipe(Recipe parent);
 }

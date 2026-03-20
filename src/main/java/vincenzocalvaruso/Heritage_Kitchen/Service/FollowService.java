@@ -5,7 +5,10 @@ import org.springframework.stereotype.Service;
 import vincenzocalvaruso.Heritage_Kitchen.entity.Follow;
 import vincenzocalvaruso.Heritage_Kitchen.entity.User;
 import vincenzocalvaruso.Heritage_Kitchen.exceptions.BadRequestException;
+import vincenzocalvaruso.Heritage_Kitchen.payloads.FollowNotificationDTO;
 import vincenzocalvaruso.Heritage_Kitchen.repository.FollowRepository;
+
+import java.util.List;
 
 @Service
 public class FollowService {
@@ -41,5 +44,20 @@ public class FollowService {
     public boolean isFollowing(User follower, User following) {
         if (follower == null || following == null) return false;
         return followRepository.existsByFollowerAndFollowing(follower, following);
+    }
+
+    public List<FollowNotificationDTO> getRecentFollowers(User currentUser) {
+        // Recuperiamo i follow dal DB
+        List<Follow> follows = followRepository.findByFollowingOrderByCreatedAtDesc(currentUser);
+
+        // Trasformiamo in DTO usando .toList() (Java 16+)
+        return follows.stream()
+                .map(f -> new FollowNotificationDTO(
+                        f.getFollower().getId(),
+                        f.getFollower().getUsername(),
+                        f.getFollower().getAvatar(),
+                        f.getCreatedAt()
+                ))
+                .toList(); // Sostituisce .collect(Collectors.toList())
     }
 }

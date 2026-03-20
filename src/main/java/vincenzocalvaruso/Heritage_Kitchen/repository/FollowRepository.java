@@ -24,4 +24,8 @@ public interface FollowRepository extends JpaRepository<Follow, UUID> {
     long countByFollower(User follower);
 
     long countByFollowing(User following);
+
+    // Recupera gli ultimi follower di un utente specifico
+    // Ordiniamo per data decrescente per mostrare le notifiche più recenti in alto
+    List<Follow> findByFollowingOrderByCreatedAtDesc(User following);
 }

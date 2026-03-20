@@ -8,7 +8,10 @@ import vincenzocalvaruso.Heritage_Kitchen.entity.User;
 import vincenzocalvaruso.Heritage_Kitchen.payloads.LikeNotificationDTO;
 import vincenzocalvaruso.Heritage_Kitchen.repository.LikeRepository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class LikeService {
@@ -53,5 +56,16 @@ public class LikeService {
                         l.getRecipe().getId(),
                         l.getCreatedAt()
                 )).toList();
+    }
+
+    public Map<UUID, Long> getLikesCounts(List<UUID> recipeIds) {
+        Map<UUID, Long> counts = new HashMap<>();
+
+        for (UUID id : recipeIds) {
+            long count = likeRepository.countByRecipeId(id);
+            counts.put(id, count);
+        }
+
+        return counts;
     }
 }

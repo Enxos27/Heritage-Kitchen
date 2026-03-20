@@ -12,6 +12,7 @@ import vincenzocalvaruso.Heritage_Kitchen.entity.User;
 import vincenzocalvaruso.Heritage_Kitchen.payloads.LikeNotificationDTO;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -41,5 +42,10 @@ public class LikeController {
     @GetMapping("/notifications/likes")
     public List<LikeNotificationDTO> getNotifications(@AuthenticationPrincipal User currentUser) {
         return likeService.getRecentLikeNotifications(currentUser);
+    }
+
+    @GetMapping("/counts")
+    public Map<UUID, Long> getLikesCounts(@RequestParam List<UUID> recipeIds) {
+        return likeService.getLikesCounts(recipeIds);
     }
 }

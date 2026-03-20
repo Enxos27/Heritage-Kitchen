@@ -9,8 +9,10 @@ import vincenzocalvaruso.Heritage_Kitchen.Service.FollowService;
 import vincenzocalvaruso.Heritage_Kitchen.Service.RecipeService;
 import vincenzocalvaruso.Heritage_Kitchen.Service.UserService;
 import vincenzocalvaruso.Heritage_Kitchen.entity.User;
+import vincenzocalvaruso.Heritage_Kitchen.payloads.FollowNotificationDTO;
 import vincenzocalvaruso.Heritage_Kitchen.payloads.UserSocialStatsDTO;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -43,5 +45,10 @@ public class FollowerController {
                 followService.getFollowingCount(user),
                 recipeService.findByUser(user).size() // Un'info in più che fa comodo al profilo
         );
+    }
+
+    @GetMapping("/notifications/follows")
+    public List<FollowNotificationDTO> getFollowNotifications(@AuthenticationPrincipal User currentUser) {
+        return followService.getRecentFollowers(currentUser);
     }
 }

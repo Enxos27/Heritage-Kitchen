@@ -27,4 +27,6 @@ public interface LikeRepository extends JpaRepository<Like, UUID> {
     // Trova i like fatti alle ricette dell'utente loggato, ordinati per i più recenti
     @Query("SELECT l FROM Like l WHERE l.recipe.user.id = :userId ORDER BY l.createdAt DESC")
     List<Like> findRecentLikesForUser(@Param("userId") UUID userId);
+
+    long countByRecipeId(UUID recipeId);
 }

@@ -22,10 +22,7 @@ import vincenzocalvaruso.Heritage_Kitchen.repository.RecipeRepository;
 import vincenzocalvaruso.Heritage_Kitchen.repository.UserRepository;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class RecipeService {
@@ -237,9 +234,49 @@ public class RecipeService {
         return repository.findByTitoloContainingIgnoreCase(query);
     }
 
+    // FUNZIONE HELPER PER CREAZIONE ALBERO DISCENDENZA
+    private Recipe findRootRecipe(Recipe recipe) {
+        Recipe current = recipe;
+        // Risaliamo la catena finché troviamo un genitore
+        while (current.getParentRecipe() != null) {
+            current = current.getParentRecipe();
+        }
+        return current;
+    }
+
     public RecipeResponseDTO getRecipeDetail(UUID id, User currentUser) {
         Recipe recipe = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Ricetta non trovata"));
+
+        // 1.  IL CAPOSTIPITE (Il Nonno/Radice)
+        Recipe root = null;
+        if (recipe.getParentRecipe() != null) {
+            root = findRootRecipe(recipe);
+            // Se la radice è la stessa del padre, mettiamola a null
+            // così il frontend sa che c'è solo un livello sopra
+            if (root.getId().equals(recipe.getParentRecipe().getId())) {
+                root = null;
+            }
+        }
+        // 2. I FIGLI (Varianti dirette di questa)
+        List<Recipe> variants = repository.findByParentRecipe(recipe);
+
+        // 🔥 Creiamo la mappa per i conteggi dei nipoti
+        Map<UUID, Long> variantsCounts = new HashMap<>();
+        for (Recipe figlio : variants) {
+            long nipotiCount = repository.countByParentRecipe(figlio);
+            variantsCounts.put(figlio.getId(), nipotiCount);
+        }
+
+        // 3. I FRATELLI (Altre varianti della stessa base)
+        List<Recipe> siblings = new ArrayList<>();
+        if (recipe.getParentRecipe() != null) {
+            // Cerco tutte le ricette che hanno lo stesso padre, escludendo quella attuale
+            siblings = repository.findByParentRecipe(recipe.getParentRecipe())
+                    .stream()
+                    .filter(r -> !r.getId().equals(recipe.getId()))
+                    .toList();
+        }
 
         boolean liked = false;
         boolean following = false;
@@ -249,7 +286,7 @@ public class RecipeService {
             following = followRepository.existsByFollowerAndFollowing(currentUser, recipe.getUser());
         }
 
-        return new RecipeResponseDTO(recipe, liked, following);
+        return new RecipeResponseDTO(recipe, liked, following, root, variants, siblings, variantsCounts);
     }
 
     public List<Recipe> findLikedRecipesByUser(User user) {
