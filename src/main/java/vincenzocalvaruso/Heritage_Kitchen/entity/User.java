@@ -38,8 +38,10 @@ public class User implements UserDetails {
     private UUID id;
 
     @Column(unique = true, nullable = false)
+    @Setter
     private String email;
 
+    @Setter
     private String password;
 
     @Column(unique = true, nullable = false)

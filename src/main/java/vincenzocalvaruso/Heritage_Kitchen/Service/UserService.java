@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vincenzocalvaruso.Heritage_Kitchen.Security.JWTTools;
 import vincenzocalvaruso.Heritage_Kitchen.entity.Role;
@@ -104,10 +105,30 @@ public class UserService {
         }
     }
 
-    // ELIMINA UTENTE
+    @Transactional
     public void deleteUser(UUID id) {
         User u = this.findById(id);
-        this.userRepository.delete(u);
+
+        // 1. Pulizia Social: I follow devono sparire (causano l'errore 500)
+        followRepository.deleteByFollower(u);
+        followRepository.deleteByFollowing(u);
+
+        // 2. Libero Username e Email per il futuro
+        // Aggiungiamo un suffisso unico (es. l'ID) così l'utente potrà riscriversi
+        // con la stessa email/user se vorrà, e non avrai conflitti nel DB.
+        u.setUsername("Ex-Chef-" + +(System.currentTimeMillis() % 10000));
+        u.setEmail("deleted-" + u.getId() + "@heritage.com");
+
+        // 3. Protezione Privacy
+        u.setPassword("DELETED_ACCOUNT"); // Sovrascrive l'hash della password
+        u.setBio("Questo account non è più attivo, ma le sue ricette originali restano a disposizione della community.");
+        u.setAvatar("https://ui-avatars.com/api/?name=Ex+Chef&background=efefef&color=999");
+
+        // 4. Salviamo l'utente "fantasma" invece di eliminarlo
+        userRepository.save(u);
+
+        // NOTA: Non chiamiamo userRepository.delete(u).
+        // In questo modo le ricette mantengono il loro user_id e le varianti non si rompono.
     }
 
     //    UPLOAD AVATAR UTENTE

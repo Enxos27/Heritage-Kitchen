@@ -28,4 +28,8 @@ public interface FollowRepository extends JpaRepository<Follow, UUID> {
     // Recupera gli ultimi follower di un utente specifico
     // Ordiniamo per data decrescente per mostrare le notifiche più recenti in alto
     List<Follow> findByFollowingOrderByCreatedAtDesc(User following);
+
+    void deleteByFollower(User follower);
+
+    void deleteByFollowing(User following);
 }
