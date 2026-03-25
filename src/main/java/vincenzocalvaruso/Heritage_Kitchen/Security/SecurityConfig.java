@@ -25,12 +25,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) {
 
 
+        httpSecurity.cors(Customizer.withDefaults());
+
         httpSecurity.formLogin(formLogin -> formLogin.disable());
         httpSecurity.csrf(csrf -> csrf.disable());
         httpSecurity.sessionManagement(sessions -> sessions.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         httpSecurity.authorizeHttpRequests(req -> req.requestMatchers("/**").permitAll());
-
-        httpSecurity.cors(Customizer.withDefaults());
+        
 
         return httpSecurity.build();
 
