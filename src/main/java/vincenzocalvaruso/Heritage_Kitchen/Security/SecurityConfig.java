@@ -45,7 +45,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("http://localhost:5174", "http://localhost:5173", "https://exampleFronrend.com"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5174", "http://localhost:5173", "https://exampleFronrend.com", "https://*.vercel.app"));
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
 
